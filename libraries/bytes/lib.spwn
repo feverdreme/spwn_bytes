@@ -1,0 +1,7 @@
+import "src/bytes.spwn"
+import "src/bytestream.spwn"
+
+return {
+    byte: @byte::new,
+    bytestream: @bytestream::new
+}

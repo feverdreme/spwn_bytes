@@ -1,0 +1,28 @@
+type @bytestream;
+
+impl @bytestream {
+    new: #[constructor, desc("Stream to read bytes") example("
+bs = @bytestream::new('path/to/binary')
+    ")]
+    (filepath: @string) {
+        bdata = $.readfile("../../../{}".fmt(filepath), "bin")
+        
+        return {
+            type: @bytestream,
+            bdata: bdata
+        }
+    },
+
+    read: #[desc("Read a certain number of bytes, default is 1") example("
+bs = @bytestream::new('bytes')
+$.assert(bs.read(5) == [22, 50, 92, 23, 105])
+    ")]
+    (self, numbytes: @number = 1) {
+        [chunk, newbdata] = [self.bdata[:numbytes], self.bdata[numbytes:]]
+
+        self.bdata = newbdata
+        return chunk
+    }
+}
+
+return @bytestream::new

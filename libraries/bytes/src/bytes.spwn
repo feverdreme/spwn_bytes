@@ -1,0 +1,77 @@
+type @byte
+
+impl @byte {
+    new: #[constructor, desc("Abstraction to store a byte") example("
+byte1 = @byte::new('FF')
+byte2 = @byte::new(200)
+$.assert(byte1.hdata == 255)
+$.assert(byte2.hdata == 200)
+$.assert(byte1 == @byte::new(255))
+    ")]
+    (data: @number | @string | @byte) {
+        let hdata = 0
+
+        if data.type == @number {
+            hdata = @byte::convert_number(data)
+        } else if data.type == @string {
+            hdata = @byte::convert_string(data)
+        } else if data.type = @byte {
+            hdata = hdata
+        }
+
+        return {
+            type: @byte,
+            hdata: hdata
+        }
+    },
+
+    convert_number: (n: @number) {
+        if n > 255 {
+            throw "Error: Attempted to store value {}, maximum allowed for byte is 255".fmt(n)
+        }
+
+        if n < 0 {
+            throw "Error: Attempted to store value {}, minimum allowed for byte is 0".fmt(n)
+        }
+
+        return n
+    },
+
+    convert_string: (s: @string) {
+        if s.length > 2 {
+            throw "Error: cannot convert a string with length {}, must be at most 2 characters long".fmt(s.length)
+        }
+
+        let ret = 0
+
+        hex_dict = {
+            A: 10,
+            B: 11,
+            C: 12,
+            D: 13,
+            E: 14,
+            F: 15
+        }
+
+        if s[-1].isdigit() {
+            ret += @number(s[-1])
+        } else {
+            ret += hex_dict[s[-1]]
+        }
+
+        if s.length == 2 {
+
+            if s[0].isdigit() {
+                ret += 16 * @number(s[0])
+            } else {
+                ret += 16 * hex_dict[s[0]]
+            }
+        }
+
+        return ret
+    },
+
+    _equal_: (self, other: @byte) {
+        return (self.hdata == other.hdata)
+    }
+}
